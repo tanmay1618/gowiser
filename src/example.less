@@ -1,16 +1,22 @@
-@import 'vars.less';
+@import '../src/styles/vars.less';
 
+#root,
+body,
+html {
+  height: 100%;
+  max-width: 100%;
+    overflow-x: hidden;
+}
 body,
 html {
   margin: 0;
   padding: 0;
-  height: 100%;
 }
 body {
   background: #f6f6f6;
   color: #1a1a1a;
   font-size: 14px;
-  padding: 20px;
+  /*padding: 20px;*/
 }
 
 button,
@@ -93,4 +99,54 @@ label {
   .version {
     font-size: 14px;
   }
+}
+
+.news-headline {
+  display: flex;
+  align-items: center;
+}
+.logo-header {
+  padding-left: 2%;
+  background: #3e3f3f;
+  display: flex;
+    justify-content: space-between;
+    padding-bottom: 1%;
+}
+
+
+.headlines-container {
+  margin-left: 5%;
+
+}
+
+@media @mobile {
+  .headlines-container {
+    margin-left: 5%;
+    padding-bottom: 25%;
+  }
+}
+
+@media @mobile{
+  button.circular-buttons {
+    border-radius: 90%;
+    padding: 2%;
+    align-items: center;
+    align-content: center;
+    display: flex;
+}
+}
+
+button.circular-buttons {
+  border-radius: 80%;
+  /* padding: 2%; */
+  padding: 1%;
+  /* padding-bottom: 1.2%; */
+}
+
+a {
+  color: #358f0c;
+}
+.Demo__some-network {
+  margin-top: 3%;
+  margin-right: 5%;
 }

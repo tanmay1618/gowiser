@@ -1,12 +1,16 @@
 import React from 'react';
-import logo from './logo.svg';
+//import logo from './logo.svg';
 import ReactJkMusicPlayer from "react-jinke-music-player";
 import './App.css';
 import './example.less';
 import Locale from './config/locale'
 //import { createRandomNum } from '../src/utils'
 import PLAY_MODE from './config/playMode'
-
+import './styles/index.less'
+import Headlines from './Headlines';
+import {WhatsappShareButton, WhatsappIcon} from 'react-share';
+import axios from 'axios';
+import logo from './logo.png';
 
 const audioList1 = [
   {
@@ -446,12 +450,170 @@ const options = {
 }
 
 
-function App() {
+class App extends React.Component {
+  constructor(props) {
+    super(props)
+    this.audio = {}
+  }
+  state = {
+    unmount: false,
+    params: {
+      ...options,
+      getAudioInstance: (audio) => {
+        this.audio = audio
+      },
+    },
+  }
+
+  componentDidMount=()=>{
+    this.getCurrentData(this.state.params.audioLists[this.state.params.defaultPlayIndex]["data"])
+  }
+
+  getCurrentData=(url)=>{
+    //console.log("url",url)
+    axios.get(url)
+    .then((response) => {
+      //console.log("response")
+      this.updateParams({ displayData: response["data"] })
+    }, (error) => {
+      this.updateParams({ displayData: false })
+      console.log(error);
+    });
+  }
+
+  onAddAudio = () => {
+    this.updateParams({
+      clearPriorAudioLists: false,
+      audioLists: [
+        ...this.state.params.audioLists,
+        {
+          name: "I'm new here",
+          singer: 'jack',
+          cover: 'http://www.lijinke.cn/music/1387583682387727.jpg',
+          musicSrc: `http://www.lijinke.cn/music/${Date.now()}.mp3`,
+        },
+      ],
+    })
+  }
+
+  onChangeToFirstAudioList = () => {
+    this.updateParams({
+      clearPriorAudioLists: true,
+      audioLists: audioList1,
+    })
+  }
+
+  onAutoPlayMode = () => {
+    this.updateParams({
+      autoPlay: !this.state.params.autoPlay,
+    })
+  }
+
+  onAutoPlayInitLoadPlayList = () => {
+    this.updateParams({
+      autoPlayInitLoadPlayList: !this.state.params.autoPlayInitLoadPlayList,
+    })
+  }
+
+  onClearPriorAudioLists = () => {
+    this.updateParams({
+      clearPriorAudioLists: !this.state.params.clearPriorAudioLists,
+    })
+  }
+
+  onShowGlassBg = () => {
+    this.onChangeKey('glassBg')
+  }
+  onDrag = () => {
+    this.onChangeKey('drag')
+  }
+  onToggleMode = () => {
+    this.onChangeKey('toggleMode')
+  }
+  onSeeked = () => {
+    this.onChangeKey('seeked')
+  }
+  onChangeKey = (key) => {
+    const data = {
+      ...this.state.params,
+      [key]: !this.state.params[key],
+    }
+    if (key === 'light' || key === 'dark') {
+      data.theme = key
+    }
+    if (key === 'full' || key === 'mini') {
+      data.mode = key
+    }
+    if (Object.values(Locale).includes(key)) {
+      data.locale = key
+    }
+    this.setState({ params: data })
+  }
+  showMiniProcessBar = () => {
+    this.onChangeKey('showMiniProcessBar')
+  }
+  showMiniModeCover = () => {
+    this.onChangeKey('showMiniModeCover')
+  }
+  updateParams = (params) => {
+    const data = {
+      ...this.state.params,
+      ...params,
+    }
+    this.setState({
+      params: data,
+    })
+  }
+  unmountPlayer = () => {
+    this.setState({ unmount: true })
+  }
+
+  onPlayModeChange = (e) => {
+    this.updateParams({ playMode: e.target.value })
+  }
+
+  handleHeadlineClick=(time)=>{
+    this.audio.currentTime = time 
+  }
+
+  renderCustomUI = () => {
+    return (
+      <>
+        <h2>Custom UI</h2>
+        <button onClick={() => this.audio.play()}>play</button>
+        <button onClick={() => this.audio.pause()}>pause</button>
+        <button onClick={() => this.audio.load()}>reload</button>
+        <button onClick={() => (this.audio.currentTime = 40)}>
+          change current play time
+        </button>
+        <button onClick={() => (this.audio.playbackRate = 2)}>
+          change play back rate
+        </button>
+        <button onClick={() => (this.audio.volume = 0.2)}>change volume</button>
+        <button onClick={() => this.audio.destroy()}>destroy player</button>
+      </>
+    )
+  }
+  render() {
+    console.log("state",this.state)
+    const { params, unmount } = this.state
   return (
     <div className="App">
+	<div class="logo-header" >
+            <img src={logo} height={50} width={100}/>
+
+            <div className="Demo__some-network">
+            <a href='whatsapp://send?text=Now get audio news on %0a http://gowiser.in %0a %0aSend "Hi" on 8329565344 to get messages in your whatsapp daily.'>
+              <WhatsappIcon size={32} round />
+            </a>
+          </div>
+          </div>
+          <Headlines data={this.state.params.displayData} onHeadlineClick={this.handleHeadlineClick}/>
+
     <ReactJkMusicPlayer {...options}/>
     </div>
   );
+}
 }
 
 export default App;
